@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Заметки</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="board">
+        <button id="openModalButton">+</button>
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="closeEditModalButton">&times;</span>
+                <h2 class="redact">Редактировать заметку</h2>
+                <form id="editModalForm">
+                    <input type="text" id="editModalTitle" placeholder="Заголовок" required />
+                    <textarea id="editModalText" placeholder="Текст заметки"required></textarea>
+                    <input type="date" id="editModalDate" />
+                    <input type="time" id="editModalTime" />
+                    <button type="submit">Сохранить изменения</button>
+                    <button type="button" id="markImportantButton">Пометить как важное</button>
+                    <button type="button" id="deleteNoteButton">Удалить заметку</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="column column-todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>Новое <span class="counter">0</span></h2>
+        </div>
+        <div class="column column-ip" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>в процессе <span class="counter">0</span></h2>
+        </div>
+        <div class="column column-done" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>готово <span class="counter">0</span></h2>
+        </div>
+        <div class="column column-deferred" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>Отложено <span class="counter">0</span></h2>
+        </div>
+        <div class="column column-impossible" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>Не выполнено <span class="counter">0</span></h2>
+        </div>
+    </main>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="redact">Новая заметка</h2>
+            <form id="modalForm">
+                <input type="text" id="modalTitle" placeholder="Заголовок" required />
+                <textarea id="modalText" placeholder="Текст заметки"required></textarea>
+                <input type="date" id="modalDate" />
+                <input type="time" id="modalTime" />
+                <button type="submit">Добавить заметку</button>
+            </form>
+        </div>
+    </div>
+    <div id="notification" class="notification">
+        <span class="close-button" id="closeNotificationButton">&times;</span>
+        <p id="notificationMessage"></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
