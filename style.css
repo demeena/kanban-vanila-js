@@ -191,6 +191,7 @@ button:hover {
   position: relative;
   max-width: 55px;
   right: 5px;
+  margin-top: 5px;
   background-color: red;
   color: white;
   font-size: 10px;

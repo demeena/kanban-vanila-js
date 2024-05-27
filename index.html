@@ -15,7 +15,7 @@
                 <h2 class="redact">Редактировать заметку</h2>
                 <form id="editModalForm">
                     <input type="text" id="editModalTitle" placeholder="Заголовок" required />
-                    <textarea id="editModalText" placeholder="Текст заметки"required></textarea>
+                    <textarea id="editModalText" placeholder="Текст заметки" required></textarea>
                     <input type="date" id="editModalDate" />
                     <input type="time" id="editModalTime" />
                     <button type="submit">Сохранить изменения</button>
@@ -47,7 +47,7 @@
             <h2 class="redact">Новая заметка</h2>
             <form id="modalForm">
                 <input type="text" id="modalTitle" placeholder="Заголовок" required />
-                <textarea id="modalText" placeholder="Текст заметки"required></textarea>
+                <textarea id="modalText" placeholder="Текст заметки" required></textarea>
                 <input type="date" id="modalDate" />
                 <input type="time" id="modalTime" />
                 <button type="submit">Добавить заметку</button>
@@ -58,6 +58,6 @@
         <span class="close-button" id="closeNotificationButton">&times;</span>
         <p id="notificationMessage"></p>
     </div>
-    <script src="app.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
