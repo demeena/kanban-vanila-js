@@ -12,7 +12,7 @@ A simple Kanban board application built with vanilla JavaScript.
 ## Features
 
 - **Add, Edit, and Delete Tasks**: Easily manage your tasks by adding new ones, editing existing tasks, and deleting those that are completed or no longer needed.
-- **Set Due Dates and Times**: Assign specific dates and times to tasks, helping you stay organized and meet your deadlines.
+- **Set Due Dates and Times**: Assign specific dates and times to tasks helping you stay organized and meet your deadlines.
 - **Deadline Notifications**: Receive notifications when a task is approaching its due date, ensuring you never miss a deadline.
 - **Mark Tasks as Important**: Highlight important tasks to make sure they stand out and get the attention they deserve.
 
