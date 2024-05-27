@@ -6,18 +6,4 @@ Check out the live demo of the application: [Kanban Vanilla JS](https://demeena.
 
 A simple Kanban board application built with vanilla JavaScript.
 
-## Installation
 
-Instructions on how to install the project.
-
-## Usage
-
-Instructions on how to use the project.
-
-## Contributing
-
-Guidelines for contributing to the project.
-
-## License
-
-Details about the project's license.
