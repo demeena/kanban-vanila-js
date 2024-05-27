@@ -57,6 +57,7 @@ export const toggleImportant = (card) => {
         }
     }
 };
+
 export const updateCardTitle = (card) => {
     const titleElement = card.querySelector('h3');
     const titleText = titleElement.textContent.trim();
@@ -94,7 +95,6 @@ export const createCardElement = ({ id, title, text, date, time }) => {
     card.addEventListener('click', () => openEditModal(card));
     return card;
 };
-
 
 export const openEditModal = (card) => {
     setEditingCard(card);
@@ -156,19 +156,27 @@ export const updateColumnCounters = () => {
     });
 };
 
+const extractDateAndTime = (dateText) => {
+    const [datePart, timePart] = dateText.split(' ');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart ? timePart.split(':').map(Number) : [0, 0];
+    return new Date(year, month - 1, day, hour, minute);
+};
+
+const notifyCardExpiration = (card) => {
+    showNotification(`Срок выполнения задачи: "${card.querySelector('h3').textContent}" подошёл к концу.`, card.dataset.id);
+    expiredCards.add(card.dataset.id);
+    markCardAsExpired(card);
+    saveState();
+};
+
 const handleCardExpiration = (card, now) => {
     const dateText = card.querySelector('.date').textContent.trim();
     if (dateText && !card.classList.contains('expired')) {
-        const [datePart, timePart] = dateText.split(' ');
-        const [year, month, day] = datePart.split('-').map(Number);
-        const [hour, minute] = timePart ? timePart.split(':').map(Number) : [0, 0];
-        const cardDate = new Date(year, month - 1, day, hour, minute);
+        const cardDate = extractDateAndTime(dateText);
 
         if (cardDate <= now) {
-            showNotification(`Срок выполнения задачи: "${card.querySelector('h3').textContent}" подошёл к концу.`, card.dataset.id);
-            expiredCards.add(card.dataset.id);
-            markCardAsExpired(card);
-            saveState();
+            notifyCardExpiration(card);
         }
     }
 };
@@ -201,18 +209,12 @@ export const updateTimeouts = () => {
     document.querySelectorAll('.card').forEach(card => {
         const dateText = card.querySelector('.date').textContent.trim();
         if (dateText && !card.classList.contains('expired')) {
-            const [datePart, timePart] = dateText.split(' ');
-            const [year, month, day] = datePart.split('-').map(Number);
-            const [hour, minute] = timePart ? timePart.split(':').map(Number) : [0, 0];
-            const cardDate = new Date(year, month - 1, day, hour, minute);
+            const cardDate = extractDateAndTime(dateText);
             const timeToExpire = cardDate - now;
 
             if (timeToExpire > 0) {
                 setTimeout(() => {
-                    showNotification(`Срок выполнения "${card.querySelector('h3').textContent}" подошёл к концу.`, card.dataset.id);
-                    expiredCards.add(card.dataset.id);
-                    markCardAsExpired(card);
-                    saveState();
+                    notifyCardExpiration(card);
                 }, timeToExpire);
             }
         }
