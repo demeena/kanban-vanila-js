@@ -2,6 +2,11 @@ let cardId = 1;
 let editingCard = null;
 let expiredCards = new Set();
 
+const addDragAndDropListeners = (element) => {
+    element.addEventListener('dragstart', dragStart);
+    element.addEventListener('dragend', dragEnd);
+};
+
 const dragStart = (event) => {
     const target = event.target;
     target.classList.add('dragging');
@@ -28,8 +33,7 @@ const drop = (event) => {
     event.currentTarget.appendChild(card);
     event.currentTarget.classList.remove('drop');
     card.setAttribute('draggable', true);
-    card.addEventListener('dragstart', dragStart);
-    card.addEventListener('dragend', dragEnd);
+    addDragAndDropListeners(card);
     saveState();
     updateColumnCounters();
     updateTimeouts();
@@ -62,6 +66,10 @@ document.addEventListener('click', (e) => {
 
 const toggleImportant = (card) => {
     card.classList.toggle('important');
+    updateCardTitle(card);
+};
+
+const updateCardTitle = (card) => {
     const titleElement = card.querySelector('h3');
     const titleText = titleElement.textContent.trim();
     if (card.classList.contains('important')) {
@@ -102,40 +110,39 @@ modalForm.addEventListener('submit', (event) => {
     const column = document.querySelector('.column-todo');
 
     if (title.trim() && text.trim()) {
-        const newCard = document.createElement('article');
-        newCard.classList.add('card');
-        newCard.draggable = true;
-        newCard.dataset.id = cardId++;
-        newCard.innerHTML = `
-            <h3>${title}</h3>
-            <p>${text}</p>
-            <div class="date">${date} ${time}</div>
-        `;
-        newCard.addEventListener('dragstart', dragStart);
-        newCard.addEventListener('dragend', dragEnd);
-        newCard.addEventListener('click', (e) => openEditModal(newCard)); 
-
+        const newCard = createCardElement({ id: cardId++, title, text, date, time });
         column.appendChild(newCard);
         modal.style.display = 'none';
-        document.getElementById('modalTitle').value = '';
-        document.getElementById('modalText').value = '';
-        document.getElementById('modalDate').value = '';
-        document.getElementById('modalTime').value = '';
+        modalForm.reset();
         saveState();
-        updateCardStyles();
         updateColumnCounters();
         checkDates(); 
         updateTimeouts();
     }
 });
 
+const createCardElement = ({ id, title, text, date, time }) => {
+    const card = document.createElement('article');
+    card.classList.add('card');
+    card.draggable = true;
+    card.dataset.id = id;
+    card.innerHTML = `
+        <h3>${title}</h3>
+        <p>${text}</p>
+        <div class="date">${date ? date : ''} ${time ? time : ''}</div>
+    `;
+    addDragAndDropListeners(card);
+    card.addEventListener('click', () => openEditModal(card));
+    return card;
+};
+
 const openEditModal = (card) => {
-    editingCard = card.closest('.card'); 
-    const dateTime = editingCard.querySelector('.date').textContent.split(' ');
-    document.getElementById('editModalTitle').value = editingCard.querySelector('h3').textContent.replace('📍 ', '');
-    document.getElementById('editModalText').value = editingCard.querySelector('p').textContent;
-    document.getElementById('editModalDate').value = dateTime[0] || '';
-    document.getElementById('editModalTime').value = dateTime[1] || '';
+    editingCard = card;
+    const [date, time] = card.querySelector('.date').textContent.trim().split(' ');
+    document.getElementById('editModalTitle').value = card.querySelector('h3').textContent.replace('📍 ', '');
+    document.getElementById('editModalText').value = card.querySelector('p').textContent;
+    document.getElementById('editModalDate').value = date || '';
+    document.getElementById('editModalTime').value = time || '';
     document.getElementById('editModal').style.display = 'block';
 };
 
@@ -167,11 +174,10 @@ editModalForm.addEventListener('submit', (event) => {
     if (editingCard && title.trim() && text.trim()) {
         editingCard.querySelector('h3').textContent = editingCard.classList.contains('important') ? '📍 ' + title : title;
         editingCard.querySelector('p').textContent = text;
-        editingCard.querySelector('.date').textContent = `${date} ${time}`;
+        editingCard.querySelector('.date').textContent = `${date ? date : ''} ${time ? time : ''}`;
         editModal.style.display = 'none';
         editingCard = null;
         saveState();
-        updateCardStyles();
         checkDates(); 
         updateTimeouts();
     }
@@ -198,16 +204,14 @@ deleteNoteButton.addEventListener('click', () => {
 const saveState = () => {
     const columns = document.querySelectorAll('.column');
     const state = Array.from(columns).map(column => {
-        return Array.from(column.querySelectorAll('.card')).map(card => {
-            return {
-                id: card.dataset.id,
-                title: card.querySelector('h3').textContent,
-                text: card.querySelector('p').textContent,
-                date: card.querySelector('.date').textContent,
-                important: card.classList.contains('important'),
-                expired: card.classList.contains('expired')
-            };
-        });
+        return Array.from(column.querySelectorAll('.card')).map(card => ({
+            id: card.dataset.id,
+            title: card.querySelector('h3').textContent,
+            text: card.querySelector('p').textContent,
+            date: card.querySelector('.date').textContent,
+            important: card.classList.contains('important'),
+            expired: card.classList.contains('expired')
+        }));
     });
     localStorage.setItem('boardState', JSON.stringify(state));
 };
@@ -218,23 +222,7 @@ const loadState = () => {
         state.forEach((cards, columnIndex) => {
             const column = document.querySelectorAll('.column')[columnIndex];
             cards.forEach(cardData => {
-                const card = document.createElement('article');
-                card.classList.add('card');
-                if (cardData.important) {
-                    card.classList.add('important');
-                }
-                if (cardData.expired) {
-                    card.classList.add('expired');
-                }
-                card.draggable = true;
-                card.dataset.id = cardData.id;
-                card.innerHTML = `
-                    <h3>${cardData.title}</h3>
-                    <p>${cardData.text}</p>
-                    <div class="date">${cardData.date}</div>
-                `;
-                card.addEventListener('dragstart', dragStart);
-                card.addEventListener('dragend', dragEnd);
+                const card = createCardElement(cardData);
                 column.appendChild(card);
                 if (cardData.expired) {
                     markCardAsExpired(card);
@@ -254,39 +242,18 @@ const markCardAsExpired = (card) => {
     }
 };
 
-const updateCardStyles = () => {
-    document.querySelectorAll('.card').forEach(card => {
-        const titleElement = card.querySelector('h3');
-        const titleText = titleElement.textContent.trim();
-        if (card.classList.contains('important')) {
-            if (!titleText.startsWith('📍')) {
-                titleElement.textContent = '📍 ' + titleText;
-            }
-        } else {
-            titleElement.textContent = titleText.replace('📍 ', '');
-        }
-    });
-};
-
 const updateColumnCounters = () => {
-    const columns = document.querySelectorAll('.column');
-    columns.forEach(column => {
+    document.querySelectorAll('.column').forEach(column => {
         const counter = column.querySelector('.counter');
         const cardCount = column.querySelectorAll('.card').length;
-        if (cardCount === 0) {
-            counter.style.display = 'none';
-        } else {
-            counter.style.display = 'inline';
-            counter.textContent = cardCount;
-        }
+        counter.style.display = cardCount ? 'inline' : 'none';
+        counter.textContent = cardCount;
     });
 };
 
 const checkDates = () => {
     const now = new Date();
-    const cards = document.querySelectorAll('.card');
-
-    cards.forEach(card => {
+    document.querySelectorAll('.card').forEach(card => {
         const dateText = card.querySelector('.date').textContent.trim();
         if (dateText && !card.classList.contains('expired')) {
             const [datePart, timePart] = dateText.split(' ');
@@ -345,7 +312,6 @@ const updateTimeouts = () => {
 
 window.addEventListener('load', () => {
     loadState();
-    updateCardStyles();
     updateColumnCounters();
     checkDates();
     updateTimeouts();

@@ -1,0 +1,26 @@
+/AppData/
+/Contacts/
+/Cookies/
+/Documents/
+/Downloads/
+/Favorites/
+/IntelGraphicsProfiles/
+/Links/
+/Local Settings/
+/Music/
+/NetHood/
+/OneDrive/
+/Pictures/
+/PrintHood/
+/Recent/
+/Saved Games/
+/Searches/
+/SendTo/
+/Videos/
+/3D Objects/
+*.dat
+*.log
+*.ini
+*.blf
+*.regtrans-ms
+/NTUSER.*
